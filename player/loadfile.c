@@ -1081,7 +1081,10 @@ static void load_chapters(struct MPContext *mpctx)
     if (chapter_file && chapter_file[0]) {
         chapter_file = mp_get_user_path(NULL, mpctx->global, chapter_file);
         mp_core_unlock(mpctx);
-        struct demuxer_params p = {.stream_flags = STREAM_ORIGIN_DIRECT};
+        struct demuxer_params p = {
+            .stream_flags = STREAM_ORIGIN_DIRECT,
+            .depth = src ? src->depth + 1 : 0,
+        };
         struct demuxer *demux = demux_open_url(chapter_file, &p,
                                                mpctx->playback_abort,
                                                mpctx->global);
@@ -1670,7 +1673,7 @@ static void play_current_file(struct MPContext *mpctx)
     reset_playback_state(mpctx);
 
 #ifdef FUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION
-    if (mpctx->playlist->num_entries > 10)
+    if (mpctx->playlist->num_entries > 3)
         goto terminate_playback;
 #endif
 
